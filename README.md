@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create Contentful App](https://github.com/contentful/create-contentful-app).
 
-## Available Scripts
+## Available Scriptss
 
 In the project directory, you can run:
 
