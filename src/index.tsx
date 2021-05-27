@@ -1,73 +1,38 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { render } from 'react-dom';
-
-import {
-  AppExtensionSDK,
-  FieldExtensionSDK,
-  SidebarExtensionSDK,
-  DialogExtensionSDK,
-  EditorExtensionSDK,
-  PageExtensionSDK,
-  init,
-  locations,
-} from '@contentful/app-sdk';
+import { FieldExtensionSDK, init, locations, KnownSDK } from '@contentful/app-sdk';
 import '@contentful/forma-36-react-components/dist/styles.css';
 import '@contentful/forma-36-fcss/dist/styles.css';
 import '@contentful/forma-36-tokens/dist/css/index.css';
 import './index.css';
+import ContentTypeField from './components/ContentTypeField/ContentTypeField';
 
-import Config from './components/ConfigScreen';
-import EntryEditor from './components/EntryEditor';
-import Page from './components/Page';
-import Sidebar from './components/Sidebar';
-import Field from './components/Field';
-import Dialog from './components/Dialog';
+const ENTRY_FIELD_TYPES = {
+  CONTENT_TYPE: 'contentType',
+};
 
-import LocalhostWarning from './components/LocalhostWarning';
+type AppType = {
+  sdk: KnownSDK;
+};
 
-if (process.env.NODE_ENV === 'development' && window.self === window.top) {
-  // You can remove this if block before deploying your app
-  const root = document.getElementById('root');
-  render(<LocalhostWarning />, root);
-} else {
-  init((sdk) => {
-    const root = document.getElementById('root');
+type ParametersType = {
+  component: string;
+};
 
-    // All possible locations for your app
-    // Feel free to remove unused locations
-    // Dont forget to delete the file too :)
-    const ComponentLocationSettings = [
-      {
-        location: locations.LOCATION_APP_CONFIG,
-        component: <Config sdk={sdk as AppExtensionSDK} />,
-      },
-      {
-        location: locations.LOCATION_ENTRY_FIELD,
-        component: <Field sdk={sdk as FieldExtensionSDK} />,
-      },
-      {
-        location: locations.LOCATION_ENTRY_EDITOR,
-        component: <EntryEditor sdk={sdk as EditorExtensionSDK} />,
-      },
-      {
-        location: locations.LOCATION_DIALOG,
-        component: <Dialog sdk={sdk as DialogExtensionSDK} />,
-      },
-      {
-        location: locations.LOCATION_ENTRY_SIDEBAR,
-        component: <Sidebar sdk={sdk as SidebarExtensionSDK} />,
-      },
-      {
-        location: locations.LOCATION_PAGE,
-        component: <Page sdk={sdk as PageExtensionSDK} />,
-      },
-    ];
+const App: FunctionComponent<AppType> = ({ sdk }) => {
+  const { location, parameters } = sdk;
+  const { component } = parameters.instance as ParametersType;
 
-    // Select a component depending on a location in which the app is rendered.
-    ComponentLocationSettings.forEach((componentLocationSetting) => {
-      if (sdk.location.is(componentLocationSetting.location)) {
-        render(componentLocationSetting.component, root);
-      }
-    });
-  });
-}
+  if (location.is(locations.LOCATION_ENTRY_FIELD)) {
+    switch (component) {
+      case ENTRY_FIELD_TYPES.CONTENT_TYPE:
+        return <ContentTypeField sdk={sdk as FieldExtensionSDK} />;
+    }
+  }
+
+  return null;
+};
+
+init((sdk) => {
+  render(<App sdk={sdk} />, document.getElementById('root'));
+});
